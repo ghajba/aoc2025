@@ -10,26 +10,38 @@ public class Day03 {
     static void main() {
         List<String> lines = readLines();
 
-        int sum = lines.stream().mapToInt(Day03::maxJoltage).sum();
+        long sum = lines.stream().mapToLong(batteries -> maxJoltage(batteries, 2)).sum();
         System.out.printf("Sum (2-digit): %d%n", sum); // 16858
+
+        long sum12 = lines.stream().mapToLong(batteries -> maxJoltage(batteries, 12)).sum();
+        System.out.printf("Sum (12-digit): %d%n", sum12); // 167549941654721
     }
 
-    static int maxJoltage(String batteries) {
+    static long maxJoltage(String batteries, int length) {
 
-        int maxIdx = IntStream.range(0, batteries.length()-1)
-            .reduce((i, j) -> batteries.charAt(i) >= batteries.charAt(j) ? i : j)
-            .orElse(0);
+        int current = length;
+        long total = 0;
+        int idx = 0;
+        while (current > 0) {
+            String toProcess = batteries.substring(idx);
 
-        char max = batteries.charAt(maxIdx);
-        int total = (max - '0') * 10;
+            int maxIdx = IntStream.range(0, toProcess.length() - current + 1)
+                .reduce((i, j) -> toProcess.charAt(i) >= toProcess.charAt(j) ? i : j)
+                .orElse(0);
 
-        return total + batteries.substring(maxIdx + 1).chars().mapToObj(c -> c - '0').max(Integer::compare).orElse(0);
+            char max = toProcess.charAt(maxIdx);
+            total += (long) ((max - '0') * Math.pow(10, current - 1));
+            current--;
+            idx += maxIdx + 1;
+        }
+
+        return total;
     }
 
     private static List<String> readLines() {
         List<String> lines;
 
-        try (FileReader fileReader = new FileReader(new File("input/day03/test.txt"))) {
+        try (FileReader fileReader = new FileReader(new File("input/day03/day03.txt"))) {
             lines = fileReader.readAllLines();
         } catch (IOException e) {
             throw new RuntimeException(e);
