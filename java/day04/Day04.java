@@ -17,7 +17,7 @@ public class Day04 {
     static void main() {
 
         try {
-            List<String> lines = Files.readAllLines(new File("input/day04/test.txt").toPath());
+            List<String> lines = Files.readAllLines(new File("input/day04/day04.txt").toPath());
 
             gridSize = lines.size();
             map = new String[gridSize][];
@@ -33,11 +33,33 @@ public class Day04 {
         int accessible = getAccessible();
 
         System.out.printf("Accessible rolls: %d%n", accessible); // 1349
+
+        int allRemovable = 0;
+        int removable;
+        do {
+            removable = getRemovable();
+            allRemovable += removable;
+        } while (removable != 0);
+        System.out.printf("Removable rolls: %d%n", allRemovable); // 8277
     }
 
-    private static int getAccessible() {
-        int accessible = 0;
+    private static int getRemovable() {
+        int removable = 0;
 
+        initNeighborMap();
+
+        for (int x = 0; x < neighbors.length; x++) {
+            for (int y = 0; y < neighbors[x].length; y++) {
+                if (Objects.equals(map[x][y], "@") && neighbors[x][y] < 4) {
+                    removable++;
+                    map[x][y] = ".";
+                }
+            }
+        }
+        return removable;
+    }
+
+    private static void initNeighborMap() {
         initNeighbors();
 
         for (int x = 0; x < map.length; x++) {
@@ -47,9 +69,14 @@ public class Day04 {
                 }
             }
         }
+    }
+
+    private static int getAccessible() {
+        int accessible = 0;
+
+        initNeighborMap();
 
         for (int x = 0; x < neighbors.length; x++) {
-            System.out.printf("%s%n", Arrays.toString(neighbors[x]));
             for (int y = 0; y < neighbors[x].length; y++) {
                 if (Objects.equals(map[x][y], "@") && neighbors[x][y] < 4) {
                     accessible++;
@@ -59,7 +86,7 @@ public class Day04 {
         return accessible;
     }
 
-    private static void initNeighbors(){
+    private static void initNeighbors() {
         neighbors = new int[gridSize][gridSize];
     }
 
